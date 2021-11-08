@@ -1,4 +1,6 @@
-import { Component, ElementRef, Input, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { faCircle, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { Status } from '../../types/type';
 import { findAncestor } from '../../utils';
 
 @Component({
@@ -7,30 +9,51 @@ import { findAncestor } from '../../utils';
   styleUrls: ['./data-grid.component.scss']
 })
 export class DataGridComponent<T> {
-  @Input('columns') columns: Array<String>;
-  @Input('data') data: Array<T>;
+  @Input() columns: Array<string>;
+  @Input() rows: Array<string>;
+  @Input() data: Array<T>;
+  @Input() actionControlledBy: object;
+  @Output() notifyParent: EventEmitter<object> = new EventEmitter();
 
   @ViewChild('selectAllChkbox') selectAllChkbox: ElementRef;
   @ViewChild('gridBody') gridBody: ElementRef;
 
+  public status: typeof Status = Status;
   public selectedRows: Array<T> = [];
+  public faDownload = faDownload;
+  public faCircle = faCircle;
+  public availableForDownload: Array<T> = [];
+
+  // Avoid lint errors
+  private labelKey = 'key';
+  private labelValue = 'value';
+  private labelId = 'id';
 
   selectAll(element: HTMLInputElement): void {
-    let allTableRows = this.gridBody.nativeElement.querySelectorAll('tr');
-    let allCheckboxes = this.gridBody.nativeElement.querySelectorAll('input[type=checkbox]');
+    const allTableRows = this.gridBody.nativeElement.querySelectorAll('tr');
+    const allCheckboxes = this.gridBody.nativeElement.querySelectorAll('input[type=checkbox]');
     const selectAll = element.checked;
     this.selectedRows.length = 0;
+    this.availableForDownload.length = 0;
 
     if (element.checked) {
-      // remove all the checked entries if present already and add all the rows with sequenced index values to avoid any bugs while removing the rows individually.
+      // remove all the checked entries if present already and add all the rows with sequenced index values to avoid any bugs
+      // while removing the rows individually.
       this.data.forEach((item, index) => {
         this.selectedRows.push({
           id: index,
           ...item
         });
-      }); 
+
+        if (item[this.actionControlledBy[this.labelKey]] === this.actionControlledBy[this.labelValue]) {
+          this.availableForDownload.push({
+            id: index,
+            ...item
+          });
+        }
+      });
     }
-    
+
     // set/unset selected color when rows are selected
     allTableRows.forEach((row: HTMLTableRowElement) => {
       row.setAttribute('className', selectAll ? 'row-selected' : '');
@@ -42,6 +65,7 @@ export class DataGridComponent<T> {
   }
 
   selectRow(element: HTMLInputElement, row: T, index: number): void {
+    console.log(this.selectedRows);
     if (element.checked) {
       // add the object to the selectedRows array
       // the id will help to remove the entry since we do not want any coupling w.r.t the keys in the row object.
@@ -49,10 +73,22 @@ export class DataGridComponent<T> {
         id: index,
         ...row
       });
+
+      if (row[this.actionControlledBy[this.labelKey]] === this.actionControlledBy[this.labelValue]) {
+        this.availableForDownload.push({
+          id: index,
+          ...row
+        });
+      }
     } else {
       // remove the object from the selectedRows array
-      let indexToRemove = this.selectedRows.findIndex(item => item['id'] === index);
+      let indexToRemove = this.selectedRows.findIndex(item => item[this.labelId] === index);
       this.selectedRows.splice(indexToRemove, 1);
+      if (row[this.actionControlledBy[this.labelKey]] === this.actionControlledBy[this.labelValue]) {
+        // remove the object from availableToDownload array if it is being unchecked
+        indexToRemove = this.availableForDownload.findIndex(item => item[this.labelId] === index);
+        this.availableForDownload.splice(indexToRemove, 1);
+      }
     }
 
     // set/unset the row color
@@ -64,6 +100,7 @@ export class DataGridComponent<T> {
   }
 
   download(): void {
+    this.notifyParent.emit({ payload: this.availableForDownload });
   }
 
   private toggleCheckboxState(): void {

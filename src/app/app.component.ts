@@ -7,8 +7,9 @@ import { Process } from './common/types/type';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  public columns: Array<String> = ['Name', 'Device', 'Path', 'Status'];
-  public processes: Array<Process> = [
+  public columns: Array<string> = ['Name', 'Device', 'Path', 'Status'];
+  public rows: Array<string> = ['name', 'device', 'path', 'status'];
+  public data: Array<Process> = [
     {
       name: 'smss.exe',
       device: 'Stark',
@@ -40,4 +41,16 @@ export class AppComponent {
       status: 'scheduled'
     }
   ];
+  public actionControlledBy: object = { key: 'status', value: 'available' };
+
+  download(event: any): void {
+    const payload = event.payload;
+    let alertString = '';
+
+    payload.forEach((item: Process) => {
+      alertString += `Path: ${item.path}\nDevice: ${item.device}\n\n`;
+    });
+
+    alert(alertString);
+  }
 }
