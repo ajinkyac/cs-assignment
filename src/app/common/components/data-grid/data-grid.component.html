@@ -1,1 +1,12 @@
-<p>data-grid works!</p>
+<div class="datagrid">
+    <div class="actionbar">
+    </div>
+    <div class="dg-body">
+        <div *ngFor="let column of columns">
+            <span>{{ column }}</span>
+        </div>
+    </div>
+    <div class="dg-footer">
+        <!-- can be used to implement grid page -->
+    </div>
+</div>
