@@ -1,19 +1,38 @@
-<div class="datagrid">
+<!-- 
+    NOTE: the component is not generic to be reused.
+    In order to make it generic, custom directives need to be created:
+    1. Table
+    2. Columns
+    3. Rows
+    4. Action bar
+
+    These all would make up a parent directive and be used like:
+    <cs-datagrid>
+        <cs-dg-columns>
+            ...
+        </cs-dg-columns>
+        <cs-dg-rows *ngFor=""> ===> or a custom iterator
+            ...
+        </cs-dg-rows>
+    </cs-datagrid>
+ -->
+ <div class="datagrid">
     <div class="actionbar">
         <div class="row-selector">
             <span class="select-all">
-                <input #selectAllChkbox type="checkbox" (click)="selectAll($event.target)"/>
+                <input #selectAllChkbox data-testid="selectAllChkBox" type="checkbox" (click)="selectAll($event.target)"/>
             </span>
             <ng-container *ngIf="selectedRows.length > 0; else noneSelected">
-                <span class="all-selected">Selected {{ selectedRows.length }}</span>
+                <span class="all-selected" i18n>Selected {{ selectedRows.length }}</span>
             </ng-container>
             <ng-template #noneSelected>
-                <span>None Selected</span>
+                <span i18n>None Selected</span>
             </ng-template>
         </div>
         <div>
-            <button class="download" (click)="download()">
-                <span>Download Selected</span>
+            <button class="download" [disabled]="!availableForDownload.length" (click)="download()">
+                <fa-icon [icon]="faDownload"></fa-icon>
+                <span i18n>Download Selected</span>
             </button>
         </div>
     </div>
@@ -26,14 +45,17 @@
                 </tr>
             </thead>
             <tbody #gridBody>
+                <!-- NOTE: ended with tight coupling the object keys, better way would have been to add it as a template -->
                 <tr *ngFor="let item of data; let i = index" class="row">
                     <td>
-                        <input type="checkbox" (click)="selectRow($event.target, item, i)"/>
+                        <input attr.data-testid="rowSelector{{ i }}" type="checkbox" (click)="selectRow($event.target, item, i)"/>
                     </td>
+                    <!-- NOTE: if the component had custom directives this coupling can be avoided -->
+                    <!-- <td *ngFor="let row of rows">{{ item[row] }}</td> -->
                     <td>{{ item.name }}</td>
                     <td>{{ item.device }}</td>
                     <td>{{ item.path }}</td>
-                    <td>{{ item.status }}</td>
+                    <td i18n><fa-icon *ngIf="item.status === 'available'" [icon]="faCircle" style="color: green;"></fa-icon>{{ status[item.status] }}</td>
                 </tr>
             </tbody>
         </table>

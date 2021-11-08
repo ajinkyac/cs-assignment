@@ -4,3 +4,8 @@ export interface Process {
     path: string;
     status: string;
 }
+
+export enum Status {
+    scheduled = 'Scheduled',
+    available = 'Available'
+}
