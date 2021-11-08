@@ -1,10 +1,37 @@
 <div class="datagrid">
     <div class="actionbar">
+        <div class="row-selector">
+            <span class="select-all">
+                <input type="checkbox" (click)="selectAll($event.target)"/>
+            </span>
+            <span>None Selected</span>
+        </div>
+        <div>
+            <button class="download" (click)="download()">
+                <span>Download Selected</span>
+            </button>
+        </div>
     </div>
     <div class="dg-body">
-        <div *ngFor="let column of columns">
-            <span>{{ column }}</span>
-        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col" *ngFor="let column of columns">{{ column }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let item of data; let i = index">
+                    <td>
+                        <input type="checkbox"/>
+                    </td>
+                    <td>{{ item.name }}</td>
+                    <td>{{ item.device }}</td>
+                    <td>{{ item.path }}</td>
+                    <td>{{ item.status }}</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
     <div class="dg-footer">
         <!-- can be used to implement grid page -->

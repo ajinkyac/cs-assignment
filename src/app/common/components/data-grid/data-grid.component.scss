@@ -1,0 +1,11 @@
+.datagrid {
+    box-shadow: 0 3px 10px rgb(0 0 0 / 0.2);
+    padding: 1rem;
+
+    .actionbar {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+        width: 22rem;
+    }
+}
