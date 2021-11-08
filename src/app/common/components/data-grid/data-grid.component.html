@@ -2,9 +2,14 @@
     <div class="actionbar">
         <div class="row-selector">
             <span class="select-all">
-                <input type="checkbox" (click)="selectAll($event.target)"/>
+                <input #selectAllChkbox type="checkbox" (click)="selectAll($event.target)"/>
             </span>
-            <span>None Selected</span>
+            <ng-container *ngIf="selectedRows.length > 0; else noneSelected">
+                <span class="all-selected">Selected {{ selectedRows.length }}</span>
+            </ng-container>
+            <ng-template #noneSelected>
+                <span>None Selected</span>
+            </ng-template>
         </div>
         <div>
             <button class="download" (click)="download()">
@@ -20,7 +25,7 @@
                     <th scope="col" *ngFor="let column of columns">{{ column }}</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody #gridBody>
                 <tr *ngFor="let item of data; let i = index">
                     <td>
                         <input type="checkbox"/>
