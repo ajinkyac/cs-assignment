@@ -26,9 +26,9 @@
                 </tr>
             </thead>
             <tbody #gridBody>
-                <tr *ngFor="let item of data; let i = index">
+                <tr *ngFor="let item of data; let i = index" class="row">
                     <td>
-                        <input type="checkbox"/>
+                        <input type="checkbox" (click)="selectRow($event.target, item, i)"/>
                     </td>
                     <td>{{ item.name }}</td>
                     <td>{{ item.device }}</td>
